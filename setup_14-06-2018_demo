@@ -1,0 +1,527 @@
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "keyword_analyzer": {
+            "filter": [
+              "lowercase",
+              "asciifolding",
+              "trim"
+            ],
+            "char_filter": [],
+            "type": "custom",
+            "tokenizer": "keyword"
+          },
+          "edge_ngram_analyzer": {
+            "filter": [
+              "lowercase"
+            ],
+            "tokenizer": "edge_ngram_tokenizer"
+          },
+           "ngram_analyzer": {
+            "filter": [
+              "lowercase"
+            ],
+            "tokenizer": "edge_ngram_tokenizer"
+          },
+          "edge_ngram_search_analyzer": {
+            "tokenizer": "lowercase"
+          },
+          "trigram": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": [
+              "standard",
+              "shingle"
+            ]
+          },
+          "reverse": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": [
+              "standard",
+              "reverse"
+            ]
+          }
+        },
+        "filter": {
+          "shingle": {
+            "type": "shingle",
+            "min_shingle_size": 2,
+            "max_shingle_size": 8
+          },
+          "nGram_filter": {
+               "type": "nGram",
+               "min_gram": 2,
+               "max_gram": 20,
+               "token_chars": [
+                  "letter",
+                  "digit",
+                  "punctuation",
+                  "symbol"
+               ]
+            }
+        },
+        "tokenizer": {
+          "edge_ngram_tokenizer": {
+            "type": "edge_ngram",
+            "min_gram": 2,
+            "max_gram": 5,
+            "token_chars": [
+              "letter"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "mappings": {
+    "node_details": {
+      "properties": {
+        "NodeParameterId": {
+          "type": "text"
+        },
+        "NodeId": {
+          "type": "text"
+        },
+        "SectionId": {
+          "type": "text"
+        },
+        "SubsectionId": {
+          "type": "text"
+        },
+        "ParameterId": {
+          "type": "text"
+        },
+        "ParameterDisplayName": {
+          "type": "text"
+        },
+        "ParameterValue": {
+          "type": "text"
+        },
+        "ParameterValueForSearch": {
+          "type": "text",
+          "boost": 1,
+          "fields": {
+            "trigram": {
+              "type": "text",
+              "analyzer": "trigram"
+            },
+            "reverse": {
+              "type": "text",
+              "analyzer": "reverse"
+            },
+            "keywordstring": {
+              "type": "text",
+              "analyzer": "keyword_analyzer"
+            },
+            "edgengram": {
+              "type": "text",
+              "analyzer": "edge_ngram_analyzer",
+              "search_analyzer": "edge_ngram_search_analyzer"
+            },
+            "ngram": {
+              "type": "text",
+              "analyzer": "ngram_analyzer",
+              "search_analyzer": "english"
+            },
+            "completion": {
+              "type": "completion"
+            }
+          },
+          "analyzer": "standard"
+        },
+        "ImpLevel": {
+          "type": "text"
+        },
+        "CreatedBy": {
+          "type": "text"
+        },
+        "CreatedOn": {
+          "type": "text"
+        },
+        "ModifyBy": {
+          "type": "text"
+        },
+        "ModifyOn": {
+          "type": "text"
+        },
+        "DeletedBy": {
+          "type": "text"
+        },
+        "DeletedOn": {
+          "type": "text"
+        },
+        "DisplayNew": {
+          "type": "text"
+        },
+        "NodeName": {
+          "type": "text",
+          "boost": 2,
+          "fields": {
+            "trigram": {
+              "type": "text",
+              "analyzer": "trigram"
+            },
+            "reverse": {
+              "type": "text",
+              "analyzer": "reverse"
+            },
+            "keywordstring": {
+              "type": "text",
+              "analyzer": "keyword_analyzer"
+            },
+            "edgengram": {
+              "type": "text",
+              "analyzer": "edge_ngram_analyzer",
+              "search_analyzer": "edge_ngram_search_analyzer"
+            },
+            "ngram": {
+              "type": "text",
+              "analyzer": "ngram_analyzer",
+              "search_analyzer": "english"
+            },
+            "completion": {
+              "type": "completion"
+            }
+          },
+          "analyzer": "standard"
+        },
+        "NodeTitle": {
+          "type": "text",
+          "boost": 2,
+          "fields": {
+            "trigram": {
+              "type": "text",
+              "analyzer": "trigram"
+            },
+            "reverse": {
+              "type": "text",
+              "analyzer": "reverse"
+            },
+            "keywordstring": {
+              "type": "text",
+              "analyzer": "keyword_analyzer"
+            },
+            "edgengram": {
+              "type": "text",
+              "analyzer": "edge_ngram_analyzer",
+              "search_analyzer": "edge_ngram_search_analyzer"
+            },
+            "ngram": {
+              "type": "text",
+              "analyzer": "ngram_analyzer",
+              "search_analyzer": "english"
+            },
+            "completion": {
+              "type": "completion"
+            }
+          },
+          "analyzer": "standard"
+        }
+      }
+    }
+  }
+}
+
+
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "keyword_analyzer": {
+            "filter": [
+              "lowercase",
+              "asciifolding",
+              "trim"
+            ],
+            "char_filter": [],
+            "type": "custom",
+            "tokenizer": "keyword"
+          },
+          "edge_ngram_analyzer": {
+            "filter": [
+              "lowercase"
+            ],
+            "tokenizer": "edge_ngram_tokenizer"
+          },
+           "ngram_analyzer": {
+            "filter": [
+              "lowercase"
+            ],
+            "tokenizer": "edge_ngram_tokenizer"
+          },
+          "edge_ngram_search_analyzer": {
+            "tokenizer": "lowercase"
+          },
+          "trigram": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": [
+              "standard",
+              "shingle"
+            ]
+          },
+          "reverse": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": [
+              "standard",
+              "reverse"
+            ]
+          }
+        },
+        "filter": {
+          "shingle": {
+            "type": "shingle",
+            "min_shingle_size": 2,
+            "max_shingle_size": 8
+          },
+          "nGram_filter": {
+               "type": "nGram",
+               "min_gram": 2,
+               "max_gram": 20,
+               "token_chars": [
+                  "letter",
+                  "digit",
+                  "punctuation",
+                  "symbol"
+               ]
+            }
+        },
+        "tokenizer": {
+          "edge_ngram_tokenizer": {
+            "type": "edge_ngram",
+            "min_gram": 2,
+            "max_gram": 5,
+            "token_chars": [
+              "letter"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "mappings": {
+    "node_details": {
+      "properties": {
+        "NodeParameterId": {
+          "type": "text"
+        },
+        "NodeId": {
+          "type": "text"
+        },
+        "SectionId": {
+          "type": "text"
+        },
+        "SubsectionId": {
+          "type": "text"
+        },
+        "ParameterId": {
+          "type": "text"
+        },
+        "ParameterDisplayName": {
+          "type": "text"
+        },
+        "ParameterValue": {
+          "type": "text"
+        },
+        "ParameterValueForSearch": {
+          "type": "text",
+          "boost": 1,
+          "fields": {
+            "trigram": {
+              "type": "text",
+              "analyzer": "trigram"
+            },
+            "reverse": {
+              "type": "text",
+              "analyzer": "reverse"
+            },
+            "keywordstring": {
+              "type": "text",
+              "analyzer": "keyword_analyzer"
+            },
+            "edgengram": {
+              "type": "text",
+              "analyzer": "edge_ngram_analyzer",
+              "search_analyzer": "edge_ngram_search_analyzer"
+            },
+            "ngram": {
+              "type": "text",
+              "analyzer": "ngram_analyzer",
+              "search_analyzer": "english"
+            },
+            "completion": {
+              "type": "completion"
+            }
+          },
+          "analyzer": "standard"
+        },
+        "ImpLevel": {
+          "type": "text"
+        },
+        "CreatedBy": {
+          "type": "text"
+        },
+        "CreatedOn": {
+          "type": "text"
+        },
+        "ModifyBy": {
+          "type": "text"
+        },
+        "ModifyOn": {
+          "type": "text"
+        },
+        "DeletedBy": {
+          "type": "text"
+        },
+        "DeletedOn": {
+          "type": "text"
+        },
+        "DisplayNew": {
+          "type": "text"
+        },
+        "NodeName": {
+          "type": "text",
+          "boost": 2,
+          "fields": {
+            "trigram": {
+              "type": "text",
+              "analyzer": "trigram"
+            },
+            "reverse": {
+              "type": "text",
+              "analyzer": "reverse"
+            },
+            "keywordstring": {
+              "type": "text",
+              "analyzer": "keyword_analyzer"
+            },
+            "edgengram": {
+              "type": "text",
+              "analyzer": "edge_ngram_analyzer",
+              "search_analyzer": "edge_ngram_search_analyzer"
+            },
+            "ngram": {
+              "type": "text",
+              "analyzer": "ngram_analyzer",
+              "search_analyzer": "english"
+            },
+            "completion": {
+              "type": "completion"
+            }
+          },
+          "analyzer": "standard"
+        },
+        "NodeTitle": {
+          "type": "text",
+          "boost": 2,
+          "fields": {
+            "trigram": {
+              "type": "text",
+              "analyzer": "trigram"
+            },
+            "reverse": {
+              "type": "text",
+              "analyzer": "reverse"
+            },
+            "keywordstring": {
+              "type": "text",
+              "analyzer": "keyword_analyzer"
+            },
+            "edgengram": {
+              "type": "text",
+              "analyzer": "edge_ngram_analyzer",
+              "search_analyzer": "edge_ngram_search_analyzer"
+            },
+            "ngram": {
+              "type": "text",
+              "analyzer": "ngram_analyzer",
+              "search_analyzer": "english"
+            },
+            "completion": {
+              "type": "completion"
+            }
+          },
+          "analyzer": "standard"
+        }
+      }
+    }
+  }
+}
+
+suggest
+
+POST nodes/node_details/_search
+{
+  "suggest": {
+    "text" : "plastc crd",
+    "param" : {
+      "phrase" : {
+        "field" : "ParameterValueForSearch.trigram",
+        "size" : 5,
+        "direct_generator" : [ {
+          "field" : "ParameterValueForSearch.trigram",
+          "suggest_mode" : "always"
+        }]
+      }
+    },
+    "name" : {
+      "phrase" : {
+        "field" : "NodeName.trigram",
+        "size" : 5,
+        "direct_generator" : [ {
+          "field" : "NodeName.trigram",
+          "suggest_mode" : "always"
+        }]
+      }
+    },
+      "title" : {
+      "phrase" : {
+        "field" : "NodeTitle.trigram",
+        "size" : 5,
+        "direct_generator" : [ {
+          "field" : "NodeTitle.trigram",
+          "suggest_mode" : "always"
+        }]
+      }
+    }
+  }
+}
+
+
+
+
+
+
+search
+
+POST nodes/node_details/_search
+{
+"query": {
+    "multi_match": {
+      "query": "plastic card",
+      "fields": ["ParameterValueForSearch.trigram", "NodeName.keywordstring", "NodeTitle.keywordstring"]
+    }
+  },
+    "highlight" : {
+        "fields" : {
+            "ParameterValueForSearch" : {},
+            "NodeName": {},
+            "NodeTitle": {}
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
+curl -H 'Content-Type: application/x-ndjson' -XPOST 'localhost:9200/nodes/node_details/_bulk?pretty' --data-binary @/Users/macpro/Movies/Dharma/NextSteps/elastic_search/data/op_merge.json
