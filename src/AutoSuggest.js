@@ -38,6 +38,58 @@ const renderSuggestion = suggestion => (
   </div>
 );
 
+var suggestionJson = {
+  "suggest": {
+    "text" : "plastc crd",
+    "param" : {
+      "phrase" : {
+        "field" : "ParameterValueForSearch.trigram",
+        "size" : 5,
+        "direct_generator" : [ {
+          "field" : "ParameterValueForSearch.trigram",
+          "suggest_mode" : "always"
+        }]
+      }
+    },
+    "name" : {
+      "phrase" : {
+        "field" : "NodeName.trigram",
+        "size" : 5,
+        "direct_generator" : [ {
+          "field" : "NodeName.trigram",
+          "suggest_mode" : "always"
+        }]
+      }
+    },
+      "title" : {
+      "phrase" : {
+        "field" : "NodeTitle.trigram",
+        "size" : 5,
+        "direct_generator" : [ {
+          "field" : "NodeTitle.trigram",
+          "suggest_mode" : "always"
+        }]
+      }
+    }
+  }
+}
+
+const getSuggestionOnSearch = value => {
+  const suggestion = {...suggestionJson}
+  suggestion.suggest.text = value
+  return suggestion
+}
+
+const renderData = data => {
+  var listOfSuggestions = new Set()
+  // console.log(data)
+  data.name[0].options.map(value => listOfSuggestions.add(value.text))
+  data.param[0].options.map(value => listOfSuggestions.add(value.text))
+  data.title[0].options.map(value => listOfSuggestions.add(value.text))
+  console.log(listOfSuggestions)
+  return [...listOfSuggestions]
+}
+
 class AutoSuggest extends React.Component {
   constructor() {
     super();
@@ -50,63 +102,34 @@ class AutoSuggest extends React.Component {
     this.state = {
       value: '',
       suggestions: [],
-      showResults: false
+      showResults: false,
+      searchResult: []
     };
   }
 
   onChange = (event, { newValue }) => {
-    var suggestionJson = {
-      "suggest": {
-        "text" : "plastc crd",
-        "param" : {
-          "phrase" : {
-            "field" : "ParameterValueForSearch.trigram",
-            "size" : 5,
-            "direct_generator" : [ {
-              "field" : "ParameterValueForSearch.trigram",
-              "suggest_mode" : "always"
-            }]
-          }
-        },
-        "name" : {
-          "phrase" : {
-            "field" : "NodeName.trigram",
-            "size" : 5,
-            "direct_generator" : [ {
-              "field" : "NodeName.trigram",
-              "suggest_mode" : "always"
-            }]
-          }
-        },
-          "title" : {
-          "phrase" : {
-            "field" : "NodeTitle.trigram",
-            "size" : 5,
-            "direct_generator" : [ {
-              "field" : "NodeTitle.trigram",
-              "suggest_mode" : "always"
-            }]
-          }
-        }
-      }
-    }
-    newValue.length > 2 ? suggestionJson.suggest.text=newValue : null
-    axios.post("http://localhost:9200/nodes/node_details/_search", suggestionJson)
-    .then((response)=>{
-      console.log(response.data.suggest)
-    })
     this.setState({
       value: newValue
-    });
+    })
   };
 
   // Autosuggest will call this function every time you need to update suggestions.
   // You already implemented this logic above, so just use it.
   onSuggestionsFetchRequested = ({ value }) => {
+    var suggestion = null
+    value.length > 2 ? suggestion = getSuggestionOnSearch(value) : null
+    suggestion !== null
+    ? axios.post("http://localhost:9200/nodes/node_details/_search", suggestionJson)
+    .then((response)=>{
+      // console.log(response.data.suggest)
+      var data = renderData(response.data.suggest)
+      data !== undefined ?
+      this.setState({
+        suggestions: data
+      }, ()=>{console.log(this.state.suggestions)}): null
+    })
+    : null
 
-    this.setState({
-      suggestions: ['apple', 'ball']
-    });
   };
 
   // Autosuggest will call this function every time you need to clear suggestions.
@@ -118,9 +141,32 @@ class AutoSuggest extends React.Component {
 
   onSubmit = (event, str) => {
     // api call to get final suggestions
+    var searchQuery = {
+      "query": {
+          "multi_match": {
+            "query": "plastic card",
+            "fields": ["ParameterValueForSearch.trigram", "NodeName.keywordstring", "NodeTitle.keywordstring"]
+          }
+        },
+          "highlight" : {
+              "fields" : {
+                  "ParameterValueForSearch" : {},
+                  "NodeName": {},
+                  "NodeTitle": {}
+              }
+          }
+      }
+    searchQuery.query.multi_match.query = this.state.value
+    // console.log(searchQuery)
+    axios.post('http://localhost:9200/nodes/node_details/_search', searchQuery )
+    .then((response)=>{
+      console.log(response.data.hits.hits)
+      const searchResult = response.data.hits.hits
+      this.setState({searchResult, showResults: true})
+    })
     event.preventDefault()
-    console.log(event, str, 'api call to be made')
-    this.setState({showResults: true})
+    // console.log(event, str, 'api call to be made', this.state.value)
+
   }
 
   render() {
@@ -149,7 +195,7 @@ class AutoSuggest extends React.Component {
       </form>
       {
         this.state.showResults
-        ? <ListResults />
+        ? <ListResults searchResult={this.state.searchResult} />
         : null
       }
       </div>
