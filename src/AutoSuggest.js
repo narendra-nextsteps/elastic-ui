@@ -5,16 +5,16 @@ import ListResults from './ListResults'
 import axios from 'axios'
 
 // Imagine you have a list of languages that you'd like to autosuggest.
-const languages = [
-  {
-    name: 'C',
-    year: 1972
-  },
-  {
-    name: 'Elm',
-    year: 2012
-  },
-]
+// const languages = [
+//   {
+//     name: 'C',
+//     year: 1972
+//   },
+//   {
+//     name: 'Elm',
+//     year: 2012
+//   },
+// ]
 
 // Teach Autosuggest how to calculate suggestions for any given input value.
 // const getSuggestions = value => {
@@ -119,7 +119,7 @@ class AutoSuggest extends React.Component {
     var suggestion = null
     value.length > 2 ? suggestion = getSuggestionOnSearch(value) : null
     suggestion !== null
-    ? axios.post("http://localhost:9200/nodes/node_details/_search", suggestionJson)
+    ? axios.post("http://139.59.40.161:9200/nodes/node_details/_search", suggestionJson)
     .then((response)=>{
       // console.log(response.data.suggest)
       var data = renderData(response.data.suggest)
@@ -158,7 +158,7 @@ class AutoSuggest extends React.Component {
       }
     searchQuery.query.multi_match.query = this.state.value
     // console.log(searchQuery)
-    axios.post('http://localhost:9200/nodes/node_details/_search', searchQuery )
+    axios.post('http://139.59.40.161:9200/nodes/node_details/_search', searchQuery )
     .then((response)=>{
       console.log(response.data.hits.hits)
       const searchResult = response.data.hits.hits
