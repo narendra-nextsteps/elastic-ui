@@ -4,6 +4,7 @@ import './AutoSuggest.css'
 import ListIndex from './ListIndex'
 import axios from 'axios'
 import {serverUrl, localUrl} from './url'
+import {suggest} from './suggest'
 
 // Imagine you have a list of languages that you'd like to autosuggest.
 // const languages = [
@@ -40,44 +41,16 @@ const renderSuggestion = suggestion => (
 );
 
 var suggestionJson = {
-  "suggest": {
-    "text" : "plastc crd",
-    "param" : {
-      "phrase" : {
-        "field" : "ParameterValueForSearch.trigram",
-        "size" : 5,
-        "direct_generator" : [ {
-          "field" : "ParameterValueForSearch.trigram",
-          "suggest_mode" : "always"
-        }]
-      }
-    },
-    "name" : {
-      "phrase" : {
-        "field" : "NodeName.trigram",
-        "size" : 5,
-        "direct_generator" : [ {
-          "field" : "NodeName.trigram",
-          "suggest_mode" : "always"
-        }]
-      }
-    },
-      "title" : {
-      "phrase" : {
-        "field" : "NodeTitle.trigram",
-        "size" : 5,
-        "direct_generator" : [ {
-          "field" : "NodeTitle.trigram",
-          "suggest_mode" : "always"
-        }]
-      }
+  "query":{
+    "match": {
+      "tags.edgengram": "pla"
     }
   }
 }
 
 const getSuggestionOnSearch = value => {
   const suggestion = {...suggestionJson}
-  suggestion.suggest.text = value
+  suggestion.query.match["tags.edgengram"] = value
   return suggestion
 }
 
@@ -87,8 +60,19 @@ const renderData = data => {
   data.name[0].options.map(value => listOfSuggestions.add(value.text))
   data.param[0].options.map(value => listOfSuggestions.add(value.text))
   data.title[0].options.map(value => listOfSuggestions.add(value.text))
-  console.log(listOfSuggestions)
+  // console.log(listOfSuggestions)
   return [...listOfSuggestions]
+}
+
+const renderDataNew = data => {
+  var listOfSuggestions = [],
+      firstResponseValue = ''
+  const maxScore = data.hits.max_score
+  data.hits.hits.map ((value, index) => {
+    listOfSuggestions.push(`${value._source.tags} (score -- ${Math.round((value._score/maxScore)*100)})`)
+    if (index === 0) { firstResponseValue = value._source.tags} // for do you mean
+  })
+  return [listOfSuggestions, firstResponseValue]
 }
 
 class AutoSuggest extends React.Component {
@@ -104,7 +88,9 @@ class AutoSuggest extends React.Component {
       value: '',
       suggestions: [],
       showResults: false,
-      searchResult: []
+      searchResult: [],
+      searchValue: '',
+      firstResponseValue: ''
     };
   }
 
@@ -117,19 +103,23 @@ class AutoSuggest extends React.Component {
   // Autosuggest will call this function every time you need to update suggestions.
   // You already implemented this logic above, so just use it.
   onSuggestionsFetchRequested = ({ value }) => {
-    var suggestion = null
-    value.length > 2 ? suggestion = getSuggestionOnSearch(value) : null
-    suggestion !== null
-    ? axios.post(serverUrl, suggestionJson)
-    .then((response)=>{
-      // console.log(response.data.suggest)
-      var data = renderData(response.data.suggest)
-      data !== undefined ?
-      this.setState({
-        suggestions: data
-      }, ()=>{console.log(this.state.suggestions)}): null
-    })
-    : null
+    this.setState({searchValue: value})
+    var suggestion = getSuggestionOnSearch(value)
+    // value.length >= 1 ? suggestion = getSuggestionOnSearch(value) : null
+    if (suggestion !== null) {
+      axios.post(serverUrl, suggestionJson)
+      .then((response)=>{
+        // console.log(response.data.suggest)
+        // var data = renderData(response.data.suggest)
+        var data = renderDataNew(suggest)
+        if (data !== undefined) {
+          this.setState({
+            suggestions: data[0],
+            firstResponseValue: data[1]
+          }, ()=>{console.log(this.state.suggestions)})
+        }
+      })
+    }
 
   };
 
@@ -171,8 +161,8 @@ class AutoSuggest extends React.Component {
   }
 
   render() {
-    const { value, suggestions } = this.state;
-
+    const { value, suggestions, searchValue, firstResponseValue } = this.state;
+    console.log(value, suggestions)
     // Autosuggest will pass through all these props to the input.
     const inputProps = {
       placeholder: 'Search ...',
@@ -196,7 +186,10 @@ class AutoSuggest extends React.Component {
       </form>
       {
         this.state.showResults
-        ? <ListIndex searchResult={this.state.searchResult} />
+        ? <ListIndex searchResult={this.state.searchResult}
+          searchValue={searchValue}
+          firstResponseValue={firstResponseValue}
+          />
         : null
       }
       </div>

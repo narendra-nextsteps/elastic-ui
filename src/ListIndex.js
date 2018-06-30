@@ -51,11 +51,20 @@ class ListIndex extends Component {
   }
 
   render() {
+    const {searchValue, firstResponseValue} = this.props
+    console.log(this.props, searchValue, firstResponseValue)
     return (
       <Fragment>
       {
         !this.state.showDescription
         ? <div style={{padding:'2px 10px', margin:'1% 10%'}}>
+          {
+            searchValue !== firstResponseValue
+            ? <span style={{display: "flex", justifyContent: "center", color: 'red'}}>
+                Do you mean: <a href="" style={{color: "blue"}}> {firstResponseValue}</a>
+              </span>
+            : null
+          }
           {
             this.props.searchResult.map((value, index) => (
               <div key={index} style={contentStyle}>
