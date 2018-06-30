@@ -1,0 +1,141 @@
+PUT dharma/
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "keyword_analyzer": {
+            "type": "custom",
+            "tokenizer": "keyword",
+            "filter": [
+              "lowercase",
+              "asciifolding",
+              "stop_words",
+              "trim"
+            ]
+          },
+          "edge_ngram_analyzer": {
+            "tokenizer": "edge_ngram_tokenizer",
+            "filter": [
+              "lowercase"
+            ]
+          },
+          "ngram_analyzer": {
+            "tokenizer": "ngram_tokenizer",
+            "filter": [
+              "lowercase"
+            ]
+          },
+          "shingles": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": [
+              "standard",
+              "shingle"
+            ]
+          },
+          "edge_ngram_search_analyzer": {
+            "tokenizer": "lowercase"
+          }
+        },
+        "filter": {
+          "shingle": {
+            "type": "shingle",
+            "min_shingle_size": 2,
+            "max_shingle_size": 5
+          },
+          "stop_words": {
+            "type": "stop",
+            "stopwords": "_english_",
+            "remove_trailin": false
+          }
+        },
+        "tokenizer": {
+          "edge_ngram_tokenizer": {
+            "type": "edge_ngram",
+            "min_gram": 2,
+            "max_gram": 20,
+            "token_chars": [
+              "letter"
+            ]
+          },
+          "ngram_tokenizer": {
+            "type": "ngram",
+            "min_gram": 2,
+            "max_gram": 20,
+            "token_chars": [
+              "letter"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+
+PUT dharma/_mapping/phrase_suggestions
+{
+      "properties": {
+        "tags": {
+          "type": "text",
+          "fields": {
+            "shingles": {
+              "type": "text",
+              "analyzer": "shingles"
+            },
+            "keywordstring": {
+              "type": "text",
+              "analyzer": "keyword_analyzer"
+            },
+            "edgengram": {
+              "type": "text",
+              "analyzer": "edge_ngram_analyzer"
+            },
+            "ngram": {
+              "type": "text",
+              "analyzer": "ngram_analyzer"
+            },
+            "completion": {
+              "type": "completion"
+            }
+          },
+          "analyzer": "standard"
+        }
+      }
+    
+}
+
+
+
+suggestions:-
+POST dharma/phrase_suggestions/_search
+{
+  "query":{
+    "match": {
+      "tags.edgengram": "pla"
+    }
+  }
+}
+
+search:-
+GET /es_proper/node_details/_search
+{
+  "query": {
+    "multi_match": {
+      "query":"movies",
+      "fields":["ParameterValueForSearch.ngram","NodeTitle.ngram","NodeName.ngram"]
+    }
+  },
+    "highlight" : {
+        "fields" : {
+            "ParameterValueForSearch.ngram" : {}
+        }
+    }
+}
+
+
+curl -H 'Content-Type: application/x-ndjson' -XPOST 'localhost:9200/nodes/node_details_new/_bulk?pretty' --data-binary @/home/dharma/Documents/Dharma/Nextsteps/elastic_search/data/op_merge.json
