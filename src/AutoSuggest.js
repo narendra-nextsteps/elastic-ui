@@ -3,7 +3,7 @@ import Autosuggest from 'react-autosuggest';
 import './AutoSuggest.css'
 import ListIndex from './ListIndex'
 import axios from 'axios'
-import {serverUrl, localUrl} from './url'
+import {suggestionsUrl, searchUrl} from './url'
 import {suggest} from './suggest'
 
 // Imagine you have a list of languages that you'd like to autosuggest.
@@ -51,6 +51,7 @@ var suggestionJson = {
 const getSuggestionOnSearch = value => {
   const suggestion = {...suggestionJson}
   suggestion.query.match["tags.edgengram"] = value
+  console.log(suggestion)
   return suggestion
 }
 
@@ -66,11 +67,11 @@ const renderData = data => {
 
 const renderDataNew = data => {
   var listOfSuggestions = [],
-      firstResponseValue = ''
+      firstResponseValue = []
   const maxScore = data.hits.max_score
   data.hits.hits.map ((value, index) => {
     listOfSuggestions.push(`${value._source.tags} (score -- ${Math.round((value._score/maxScore)*100)})`)
-    if (index === 0) { firstResponseValue = value._source.tags} // for do you mean
+    if (index === 0 || index === 1 || index === 2) { firstResponseValue.push(value._source.tags)} // for do you mean
   })
   return [listOfSuggestions, firstResponseValue]
 }
@@ -90,7 +91,7 @@ class AutoSuggest extends React.Component {
       showResults: false,
       searchResult: [],
       searchValue: '',
-      firstResponseValue: ''
+      firstResponseValue: []
     };
   }
 
@@ -104,14 +105,15 @@ class AutoSuggest extends React.Component {
   // You already implemented this logic above, so just use it.
   onSuggestionsFetchRequested = ({ value }) => {
     this.setState({searchValue: value})
-    var suggestion = getSuggestionOnSearch(value)
-    // value.length >= 1 ? suggestion = getSuggestionOnSearch(value) : null
+    var suggestion = null //getSuggestionOnSearch(value)
+    value.length >= 1 ? suggestion = getSuggestionOnSearch(value) : null
     if (suggestion !== null) {
-      axios.post(serverUrl, suggestionJson)
+      axios.post(suggestionsUrl, suggestionJson)
       .then((response)=>{
-        // console.log(response.data.suggest)
-        // var data = renderData(response.data.suggest)
-        var data = renderDataNew(suggest)
+        console.log(response.data)
+        if (response.data.hits.length === 0 ) return
+        var data = renderDataNew(response.data)
+        // var data = renderDataNew(suggest)
         if (data !== undefined) {
           this.setState({
             suggestions: data[0],
@@ -134,25 +136,25 @@ class AutoSuggest extends React.Component {
     // api call to get final suggestions
     var searchQuery = {
       "query": {
-          "multi_match": {
-            "query": "plastic card",
-            "fields": ["ParameterValueForSearch.trigram", "NodeName.keywordstring", "NodeTitle.keywordstring"]
-          }
-        },
-          "highlight" : {
-              "fields" : {
-                  "ParameterValueForSearch" : {},
-                  "NodeName": {},
-                  "NodeTitle": {}
-              }
-          }
-      }
+        "multi_match": {
+          "query":"movies",
+          "fields":["ParameterValueForSearch.ngram","NodeTitle.ngram","NodeName.ngram"]
+        }
+      },
+        "highlight" : {
+            "fields" : {
+                "ParameterValueForSearch.ngram" : {},
+          "NodeTitle.ngram" : {},
+          "NodeName.ngram": {}
+            }
+        }
+    }
     searchQuery.query.multi_match.query = this.state.value
     // console.log(searchQuery)
-    axios.post(serverUrl, searchQuery )
+    axios.post(searchUrl, searchQuery )
     .then((response)=>{
       console.log(response.data.hits)
-      const searchResult = response.data.hits.hits
+      const searchResult = response.data
       this.setState({searchResult, showResults: true})
     })
     event.preventDefault()
