@@ -50,13 +50,15 @@ class ListIndex extends Component {
     this.setState({showDescription: false})
   }
 
+  sendSuggestedValue = (event) => {
+    event.preventDefault()
+    const name = event.target.innerText
+    this.props.searchSuggestedValue(name)
+  }
+
   render() {
     const {searchResult, searchValue, firstResponseValue} = this.props
-    console.log(firstResponseValue)
-    // const maxScore = searchResult.hits.max_score
-    // const scoreRegEx= /\(score.*\)$/
-    // const valueWithoutScore = firstResponseValue[0].replace(scoreRegEx, '')
-    // console.log(firstResponseValue, searchValue, searchValue === firstResponseValue[0])
+    const responseLength = firstResponseValue.length - 1
 
     return (
       <Fragment>
@@ -65,10 +67,20 @@ class ListIndex extends Component {
         ? <div style={{padding:'2px 10px', margin:'1% 10%'}}>
           {
             searchValue !== firstResponseValue[0] && firstResponseValue.length > 0
-            ? <span style={{display: "flex", justifyContent: "center", color: 'red'}}>
-                Did you mean: <a href="" style={{color: "blue"}}>{` ${firstResponseValue[0]},  ${firstResponseValue[1]},  ${firstResponseValue[2]}`}
-                </a>
-              </span>
+            ? <div style={{margin: '0 auto', width: '40vw'}}>
+                <span style={{color: 'red', fontSize:'1.3em'}}>Did you mean:{' '}</span>
+                {
+                  firstResponseValue.map((value, index) => (
+                    <span  key={index}>
+                      <a href='#' onClick={this.sendSuggestedValue}
+                        style={{color: "blue"}}>
+                        {value}
+                      </a>
+                      {index !== responseLength ? ', ' : ''}
+                    </span>
+                  ))
+                }
+              </div>
             : null
           }
           {

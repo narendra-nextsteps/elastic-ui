@@ -123,16 +123,20 @@ class AutoSuggest extends React.Component {
     // console.log(searchQuery)
     axios.post(searchUrl, searchQuery )
     .then((response)=>{
-      console.log(response.data.hits)
+      // console.log(response.data.hits)
       const searchResult = response.data
       this.setState({searchResult, showResults: true})
     })
-    event.preventDefault()
-    // console.log(event, str, 'api call to be made', this.state.value)
-
+    event ? event.preventDefault() : null
   }
   onSuggestionHighlighted = (suggestion) => {
-    console.log(suggestion)
+    // console.log(suggestion)
+  }
+
+  searchSuggestedValue = (value) => {
+    console.log(value)
+    this.setState({value})
+    this.onSubmit()
   }
 
   render() {
@@ -166,6 +170,7 @@ class AutoSuggest extends React.Component {
         ? <ListIndex searchResult={this.state.searchResult}
           searchValue={value}
           firstResponseValue={firstResponseValue}
+          searchSuggestedValue = {this.searchSuggestedValue}
           />
         : null
       }
