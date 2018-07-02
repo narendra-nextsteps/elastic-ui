@@ -42,13 +42,13 @@ const renderData = data => {
 
 const renderDataNew = data => {
   var listOfSuggestions = [],
-      firstResponseValue = []
+      responseSuggestions = []
   // const maxScore = data.hits.max_score
   data.hits.hits.map ((value, index) => {
     listOfSuggestions.push(`${value._source.tags} (score -- ${value._score.toFixed(2)})`)
-    if (index === 0 || index === 1 || index === 2) { firstResponseValue.push(value._source.tags)} // for do you mean
+    responseSuggestions.push(value._source.tags) // for do you mean
   })
-  return [listOfSuggestions, firstResponseValue]
+  return [listOfSuggestions, responseSuggestions]
 }
 
 class AutoSuggest extends React.Component {
@@ -60,7 +60,7 @@ class AutoSuggest extends React.Component {
       showResults: false,
       searchResult: [],
       searchValue: '',
-      firstResponseValue: []
+      responseSuggestions: []
     };
   }
 
@@ -87,7 +87,7 @@ class AutoSuggest extends React.Component {
         if (data !== undefined) {
           this.setState({
             suggestions: data[0],
-            firstResponseValue: data[1]
+            responseSuggestions: data[1]
           })
         }
       })
@@ -140,8 +140,8 @@ class AutoSuggest extends React.Component {
   }
 
   render() {
-    const { value, suggestions, searchValue, firstResponseValue } = this.state;
-    // console.log(value, suggestions)
+    const { value, suggestions, searchValue, responseSuggestions } = this.state;
+    // console.log(value, responseSuggestions, responseSuggestions.includes(value))
     // Autosuggest will pass through all these props to the input.
     const inputProps = {
       placeholder: 'Search ...',
@@ -169,7 +169,7 @@ class AutoSuggest extends React.Component {
         this.state.showResults
         ? <ListIndex searchResult={this.state.searchResult}
           searchValue={value}
-          firstResponseValue={firstResponseValue}
+          responseSuggestions={responseSuggestions}
           searchSuggestedValue = {this.searchSuggestedValue}
           />
         : null
