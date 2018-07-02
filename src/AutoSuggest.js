@@ -96,8 +96,10 @@ class AutoSuggest extends React.Component {
   }
 
   onChange = (event, { newValue }) => {
+    const scoreRegEx= /\s\(score.*\)$/
+    const valueWithoutScore = newValue.replace(scoreRegEx, '')
     this.setState({
-      value: newValue
+      value: valueWithoutScore
     })
   };
 
@@ -189,7 +191,7 @@ class AutoSuggest extends React.Component {
       {
         this.state.showResults
         ? <ListIndex searchResult={this.state.searchResult}
-          searchValue={searchValue}
+          searchValue={value}
           firstResponseValue={firstResponseValue}
           />
         : null

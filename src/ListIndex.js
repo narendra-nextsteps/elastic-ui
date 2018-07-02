@@ -53,17 +53,19 @@ class ListIndex extends Component {
   render() {
     const {searchResult, searchValue, firstResponseValue} = this.props
     const maxScore = searchResult.hits.max_score
-    console.log(searchResult, searchValue, maxScore)
+    const scoreRegEx= /\(score.*\)$/
+    const valueWithoutScore = firstResponseValue[0].replace(scoreRegEx, '')
+    console.log(firstResponseValue, searchValue, searchValue === firstResponseValue[0])
+
     return (
       <Fragment>
       {
         !this.state.showDescription
         ? <div style={{padding:'2px 10px', margin:'1% 10%'}}>
           {
-            searchValue !== firstResponseValue[0]
+            searchValue !== valueWithoutScore
             ? <span style={{display: "flex", justifyContent: "center", color: 'red'}}>
-                Do you mean: <a href="" style={{color: "blue"}}>
-                {` ${firstResponseValue[0]},  ${firstResponseValue[1]},  ${firstResponseValue[2]}`}
+                Did you mean: <a href="" style={{color: "blue"}}>{` ${firstResponseValue[0]},  ${firstResponseValue[1]},  ${firstResponseValue[2]}`}
                 </a>
               </span>
             : null
