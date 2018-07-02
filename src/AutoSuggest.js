@@ -6,30 +6,6 @@ import axios from 'axios'
 import {suggestionsUrl, searchUrl} from './url'
 import {suggest} from './suggest'
 
-// Imagine you have a list of languages that you'd like to autosuggest.
-// const languages = [
-//   {
-//     name: 'C',
-//     year: 1972
-//   },
-//   {
-//     name: 'Elm',
-//     year: 2012
-//   },
-// ]
-
-// Teach Autosuggest how to calculate suggestions for any given input value.
-// const getSuggestions = value => {
-//   const inputValue = value.trim().toLowerCase();
-//   const inputLength = inputValue.length;
-
-//   return inputLength === 0 ? [] : languages.filter(lang =>
-//     lang.name.toLowerCase().slice(0, inputLength) === inputValue
-//   );
-// };
-
-// When suggestion is clicked, Autosuggest needs to populate the input
-// based on the clicked suggestion. Teach Autosuggest how to calculate the
 // input value for every given suggestion.
 const getSuggestionValue = suggestion => suggestion;
 
@@ -51,7 +27,6 @@ var suggestionJson = {
 const getSuggestionOnSearch = value => {
   const suggestion = {...suggestionJson}
   suggestion.query.match["tags.edgengram"] = value
-  console.log(suggestion)
   return suggestion
 }
 
@@ -68,9 +43,9 @@ const renderData = data => {
 const renderDataNew = data => {
   var listOfSuggestions = [],
       firstResponseValue = []
-  const maxScore = data.hits.max_score
+  // const maxScore = data.hits.max_score
   data.hits.hits.map ((value, index) => {
-    listOfSuggestions.push(`${value._source.tags} (score -- ${Math.round((value._score/maxScore)*100)})`)
+    listOfSuggestions.push(`${value._source.tags} (score -- ${value._score.toFixed(2)})`)
     if (index === 0 || index === 1 || index === 2) { firstResponseValue.push(value._source.tags)} // for do you mean
   })
   return [listOfSuggestions, firstResponseValue]
@@ -79,12 +54,6 @@ const renderDataNew = data => {
 class AutoSuggest extends React.Component {
   constructor() {
     super();
-
-    // Autosuggest is a controlled component.
-    // This means that you need to provide an input value
-    // and an onChange handler that updates this value (see below).
-    // Suggestions also need to be provided to the Autosuggest,
-    // and they are initially empty because the Autosuggest is closed.
     this.state = {
       value: '',
       suggestions: [],
@@ -112,7 +81,6 @@ class AutoSuggest extends React.Component {
     if (suggestion !== null) {
       axios.post(suggestionsUrl, suggestionJson)
       .then((response)=>{
-        console.log(response.data)
         if (response.data.hits.length === 0 ) return
         var data = renderDataNew(response.data)
         // var data = renderDataNew(suggest)
@@ -120,7 +88,7 @@ class AutoSuggest extends React.Component {
           this.setState({
             suggestions: data[0],
             firstResponseValue: data[1]
-          }, ()=>{console.log(this.state.suggestions)})
+          })
         }
       })
     }
@@ -134,7 +102,7 @@ class AutoSuggest extends React.Component {
     });
   };
 
-  onSubmit = (event, str) => {
+  onSubmit = (event) => {
     // api call to get final suggestions
     var searchQuery = {
       "query": {
@@ -163,10 +131,13 @@ class AutoSuggest extends React.Component {
     // console.log(event, str, 'api call to be made', this.state.value)
 
   }
+  onSuggestionHighlighted = (suggestion) => {
+    console.log(suggestion)
+  }
 
   render() {
     const { value, suggestions, searchValue, firstResponseValue } = this.state;
-    console.log(value, suggestions)
+    // console.log(value, suggestions)
     // Autosuggest will pass through all these props to the input.
     const inputProps = {
       placeholder: 'Search ...',
@@ -177,12 +148,14 @@ class AutoSuggest extends React.Component {
     // Finally, render it!
     return (
       <div >
-      <form onSubmit={(event) => this.onSubmit(event, 'submit')} >
+      <form onSubmit={(event) => this.onSubmit(event)} >
         <Autosuggest
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.onSuggestionsClearRequested}
           getSuggestionValue={getSuggestionValue}
+          onSuggestionHighlighted={this.onSuggestionHighlighted}
+          onSuggestionSelected={this.onSubmit}
           renderSuggestion={renderSuggestion}
           inputProps={inputProps}
         />
