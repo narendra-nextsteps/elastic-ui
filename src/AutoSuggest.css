@@ -62,7 +62,8 @@ body {
 
   .react-autosuggest__suggestion--focused {
     background-color: #0C7EAF;
-    color: #fff;
+    /* color: #fff; */
+    color: pink
   }
 
   .suggestion-content {
@@ -114,4 +115,9 @@ body {
     display: flex;
     justify-content: center;
     padding: 10px;
+  }
+
+  .react-autosuggest__suggestion--highlighted {
+    background-color: gray;
+    color: white
   }
