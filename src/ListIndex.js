@@ -52,10 +52,11 @@ class ListIndex extends Component {
 
   render() {
     const {searchResult, searchValue, firstResponseValue} = this.props
-    const maxScore = searchResult.hits.max_score
-    const scoreRegEx= /\(score.*\)$/
-    const valueWithoutScore = firstResponseValue[0].replace(scoreRegEx, '')
-    console.log(firstResponseValue, searchValue, searchValue === firstResponseValue[0])
+    console.log(firstResponseValue)
+    // const maxScore = searchResult.hits.max_score
+    // const scoreRegEx= /\(score.*\)$/
+    // const valueWithoutScore = firstResponseValue[0].replace(scoreRegEx, '')
+    // console.log(firstResponseValue, searchValue, searchValue === firstResponseValue[0])
 
     return (
       <Fragment>
@@ -63,7 +64,7 @@ class ListIndex extends Component {
         !this.state.showDescription
         ? <div style={{padding:'2px 10px', margin:'1% 10%'}}>
           {
-            searchValue !== valueWithoutScore
+            searchValue !== firstResponseValue[0] && firstResponseValue.length > 0
             ? <span style={{display: "flex", justifyContent: "center", color: 'red'}}>
                 Did you mean: <a href="" style={{color: "blue"}}>{` ${firstResponseValue[0]},  ${firstResponseValue[1]},  ${firstResponseValue[2]}`}
                 </a>
@@ -94,7 +95,7 @@ class ListIndex extends Component {
                     </span>
                     <span style={{display: 'block'}}>
                       <strong style={{color: 'blue'}}>Score: </strong>
-                      {Math.round((value._score/maxScore)*100)}
+                      {value._score.toFixed(2)}
                     </span>
                   </div>
                 }
