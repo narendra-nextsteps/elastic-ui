@@ -3,6 +3,7 @@ import React, {Fragment, Component} from 'react'
 import axios from 'axios';
 import {searchUrl} from './url'
 import RenderNode from './RenderNode'
+import SearchDescription from './SearchDescription'
 
 
 const contentStyle = {
@@ -56,9 +57,12 @@ class ListIndex extends Component {
     this.props.searchSuggestedValue(name)
   }
 
+  sendIndex = index => {
+    this.setState({index, showDescription: true})
+  }
+
   render() {
     const {searchResult, searchValue, responseSuggestions} = this.props
-    const responseLength = responseSuggestions.length - 1
 
     return (
       <Fragment>
@@ -83,7 +87,7 @@ class ListIndex extends Component {
               <div key={index} style={contentStyle}>
                 {
                     // ReactHtmlParser(value._source.ParameterValue)
-                  <div onClick={() => this.getDescription(value._source.NodeId)}>
+                  <div onClick={() => this.sendIndex(index)}>
                     {
                       value._source.NodeName
                       ? <span style={{}}>
@@ -110,8 +114,9 @@ class ListIndex extends Component {
             ))
           }
         </div>
-      : <RenderNode nodeDescription={this.state.nodeDescription}
-          closeDetails={this.closeDetails}
+      : <SearchDescription searchResult={searchResult}
+        index={this.state.index}
+        closeDetails={this.closeDetails}
         />
       }
       </Fragment>
@@ -120,3 +125,7 @@ class ListIndex extends Component {
 }
 
 export default ListIndex
+
+// <RenderNode nodeDescription={this.state.nodeDescription} searchResult={searchResult}
+//           closeDetails={this.closeDetails}
+//         />

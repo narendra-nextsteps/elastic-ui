@@ -5,6 +5,8 @@ import ListIndex from './ListIndex'
 import axios from 'axios'
 import {suggestionsUrl, searchUrl} from './url'
 import {suggest} from './suggest'
+import {generateSuggestionQuery} from './suggestionsQuery'
+import {generateSearchQuery} from './searchQuery'
 
 // input value for every given suggestion.
 const getSuggestionValue = suggestion => suggestion;
@@ -16,17 +18,34 @@ const renderSuggestion = suggestion => (
   </div>
 );
 
-var suggestionJson = {
-  "query":{
-    "match": {
-      "tags.edgengram": "pla"
-    }
-  }
-}
+// var suggestionJson = {
+//   "query":{
+//     "match": {
+//       "tags.edgengram": "pla"
+//     }
+//   }
+// }
+
+// var searchQuery = {
+//   "query": {
+//     "multi_match": {
+//       "query":"movies",
+//       "fields":["ParameterValueForSearch.ngram","NodeTitle.ngram","NodeName.ngram"]
+//     }
+//   },
+//     "highlight" : {
+//         "fields" : {
+//             "ParameterValueForSearch.ngram" : {},
+//       "NodeTitle.ngram" : {},
+//       "NodeName.ngram": {}
+//         }
+//     }
+// }
 
 const getSuggestionOnSearch = value => {
-  const suggestion = {...suggestionJson}
-  suggestion.query.match["tags.edgengram"] = value
+  const suggestion = generateSuggestionQuery(value)
+  // suggestion.query.match["tags.edgengram"] = value
+  // suggestionJson = suggestion
   return suggestion
 }
 
@@ -78,8 +97,9 @@ class AutoSuggest extends React.Component {
     this.setState({searchValue: value})
     var suggestion = null //getSuggestionOnSearch(value)
     value.length >= 1 ? suggestion = getSuggestionOnSearch(value) : null
+    console.log("suggestion", suggestion)
     if (suggestion !== null) {
-      axios.post(suggestionsUrl, suggestionJson)
+      axios.post(suggestionsUrl, suggestion)
       .then((response)=>{
         if (response.data.hits.length === 0 ) return
         var data = renderDataNew(response.data)
@@ -104,33 +124,15 @@ class AutoSuggest extends React.Component {
 
   onSubmit = (event) => {
     // api call to get final suggestions
-    var searchQuery = {
-      "query": {
-        "multi_match": {
-          "query":"movies",
-          "fields":["ParameterValueForSearch.ngram","NodeTitle.ngram","NodeName.ngram"]
-        }
-      },
-        "highlight" : {
-            "fields" : {
-                "ParameterValueForSearch.ngram" : {},
-          "NodeTitle.ngram" : {},
-          "NodeName.ngram": {}
-            }
-        }
-    }
-    searchQuery.query.multi_match.query = this.state.value
-    // console.log(searchQuery)
+    const searchQuery = generateSearchQuery(this.state.value)
+    console.log("searchQuery", searchQuery)
     axios.post(searchUrl, searchQuery )
     .then((response)=>{
-      // console.log(response.data.hits)
+      console.log(response.data)
       const searchResult = response.data
       this.setState({searchResult, showResults: true})
     })
     event ? event.preventDefault() : null
-  }
-  onSuggestionHighlighted = (suggestion) => {
-    // console.log(suggestion)
   }
 
   searchSuggestedValue = (value) => {
@@ -140,7 +142,7 @@ class AutoSuggest extends React.Component {
   }
 
   render() {
-    const { value, suggestions, searchValue, responseSuggestions } = this.state;
+    const { value, suggestions, responseSuggestions } = this.state;
     // console.log(value, responseSuggestions, responseSuggestions.includes(value))
     // Autosuggest will pass through all these props to the input.
     const inputProps = {
