@@ -99,7 +99,19 @@ export const generateSuggestionQuery = (searchValue) => {
     }
   }
 
-  return suggestionJson
+  var newSuggestionJson = {
+    "query" : {
+          "fuzzy": {
+            "tags.start_word": {
+              "fuzziness": 2,
+              "value": searchValue,
+              "transpositions": true
+            }
+          }
+        }
+  }
+
+  return newSuggestionJson
 
 }
 
